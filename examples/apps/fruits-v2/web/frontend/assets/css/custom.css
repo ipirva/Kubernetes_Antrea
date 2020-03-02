@@ -1,0 +1,54 @@
+.floating-label-form-group {
+  position: relative;
+  border-bottom: 0px solid #ffffff;
+}
+
+.floating-label-form-group input, .floating-label-form-group textarea {
+  font-size: 1.5em;
+  position: relative;
+  z-index: 1;
+  padding-right: 0;
+  padding-left: 0;
+  resize: none;
+  border: none;
+  border-radius: 0;
+  background: none;
+  width: 100%;
+  box-shadow: none!important;
+}
+
+@media (min-width:1200px) {
+  .container, .container-lg, .container-md, .container-sm, .container-xl {
+    max-width: 100%;
+  }
+}
+
+section h2 {
+  padding: 2rem 0;
+}
+
+section {
+  padding: 2rem 0;
+}
+
+.footer {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 3rem;
+  background-color: #2c3e50;
+  color: #fff;
+}
+
+.icon{
+  vertical-align: middle;
+  margin-left: 2px;
+  margin-right: 4px;
+}
+
+@media (min-width:992px) {
+  header.masthead {
+    padding-top: calc(3rem + 106px);
+    padding-bottom: 3rem;
+  }
+}
+

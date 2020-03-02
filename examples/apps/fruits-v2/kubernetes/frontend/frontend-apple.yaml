@@ -1,0 +1,116 @@
+# Fruits Library - Apple - Frontend
+# PersistentVolume 
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-fruitslib-afrnt
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: ${FS_ID}
+---
+# PersistentVolume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-fruitslib-afrnt
+  namespace: fruits-library
+spec:
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 1Gi
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fruitslib-afrnt
+  namespace: fruits-library
+spec:
+  selector:
+    matchLabels:
+      app: fruitslib-afrnt
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: fruitslib-afrnt
+        role: frontend
+        tenant: apple
+    spec:
+      # hostname: fruitslib-afrnt-web     
+      containers:
+      - image: ipirva/nginx-php
+        imagePullPolicy: IfNotPresent
+        name: fruitslib-afrnt
+        ports:
+          - containerPort: 8080
+            name: frnt-web-port
+            protocol: TCP
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          subPath: fruitslib-frnt
+          name: frnt-web
+      volumes:
+      - name: frnt-web
+        persistentVolumeClaim:
+          claimName: pvc-fruitslib-afrnt
+---
+# Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: fruitslib-afrnt
+  namespace: fruits-library
+  labels:
+    tenant: apple
+spec:
+  selector:
+    app: fruitslib-afrnt
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+---
+# Ingress
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: fruitslib-afrnt
+  namespace: fruits-library
+  labels:
+    tenant: apple
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/app-root: /apple
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/proxy-pass-headers: "x-deployment-name"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Deployment-Name: apple";
+    nginx.ingress.kubernetes.io/main-snippet: |
+      proxy_set_header X-Original-URI $request_uri;
+spec:
+  tls:
+  - hosts:
+    - myfruitslibrary.com
+    secretName: fruitslib-frnt-tls
+  rules:
+  - host: myfruitslibrary.com
+    http:
+      paths:
+        - path: /apple/(.*)
+          backend:
+            serviceName: fruitslib-afrnt
+            servicePort: 8080

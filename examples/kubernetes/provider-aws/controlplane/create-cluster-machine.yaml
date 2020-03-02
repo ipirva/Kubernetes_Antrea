@@ -1,0 +1,52 @@
+apiVersion: cluster.x-k8s.io/v1alpha2
+kind: Machine
+metadata:
+  name: ${CLUSTER_NAME}-controlplane-0
+  labels:
+    cluster.x-k8s.io/control-plane: "true"
+    cluster.x-k8s.io/cluster-name: ${CLUSTER_NAME}
+spec:
+  version: ${CLUSTER_K8S_VER}
+  bootstrap:
+    configRef:
+      apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
+      kind: KubeadmConfig
+      name: ${CLUSTER_NAME}-controlplane-0
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+    kind: AWSMachine
+    name: ${CLUSTER_NAME}-controlplane-0
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+kind: AWSMachine
+metadata:
+  name: ${CLUSTER_NAME}-controlplane-0
+spec:
+  additionalSecurityGroups:
+  - id: "${AWS_CUSTOM_SG}"
+  instanceType: ${CLUSTER_AWS_EC2_CONTROL_INST}
+  # This IAM profile is part of the pre-requisites.
+  iamInstanceProfile: "control-plane.cluster-api-provider-aws.sigs.k8s.io"
+  # Change this value to a valid SSH Key Pair present in your AWS Account.
+  sshKeyName: ${CLUSTER_SSH_KEY}
+---
+# Cluster API bootstrap provider Kubeadm CABPK
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha2
+kind: KubeadmConfig
+metadata:
+  name: ${CLUSTER_NAME}-controlplane-0
+spec:
+  # For more information about these values,
+  # refer to the Kubeadm Bootstrap Provider documentation.
+  initConfiguration:
+    nodeRegistration:
+      name: '{{ ds.meta_data.hostname }}'
+      kubeletExtraArgs:
+        cloud-provider: aws
+  clusterConfiguration:
+    apiServer:
+      extraArgs:
+        cloud-provider: aws
+    controllerManager:
+      extraArgs:
+        cloud-provider: aws

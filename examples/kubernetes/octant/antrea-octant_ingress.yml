@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: antrea
+  name: antrea-octant
+  namespace: kube-system
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: antrea
+    component: antrea-octant
+---
+# Ingress
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: antrea-octant-ingress
+  namespace: kube-system
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/proxy-pass-headers: "x-deployment-name"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Deployment-Name: octant";
+    nginx.ingress.kubernetes.io/main-snippet: |
+      proxy_set_header X-Original-URI $request_uri;
+spec:
+  rules:
+  - host: mydashboard.com
+    http:
+      paths:
+        - path: /(.*)
+          backend:
+            serviceName: antrea-octant
+            servicePort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: antrea
+    component: antrea-octant
+  name: antrea-octant
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: antrea
+      component: antrea-octant
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: antrea
+        component: antrea-octant
+    spec:
+      containers:
+      - args:
+        - -v
+        command:
+        - octant
+        env:
+        - name: OCTANT_ACCEPTED_HOSTS
+          value: 0.0.0.0
+        - name: OCTANT_LISTENER_ADDR
+          value: 0.0.0.0:80
+        - name: OCTANT_DISABLE_OPEN_BROWSER
+          value: "true"
+        - name: KUBECONFIG
+          value: "/kube/admin.conf"
+        image: antrea/octant-antrea-ubuntu:v0.4.1
+        name: antrea-octant
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /kube/
+          name: kubeconfig
+      priorityClassName: system-cluster-critical
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      volumes:
+      - name: kubeconfig
+        secret:
+          defaultMode: 256
+          secretName: octant-kubeconfig

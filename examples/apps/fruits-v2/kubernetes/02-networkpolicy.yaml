@@ -1,0 +1,155 @@
+---
+# default deny all ingress
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: default-deny-all
+  namespace: fruits-library
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+###################
+#  TENANT APPLE   #
+###################
+# allow NGINX LB Ingress to Frontend
+# kind: NetworkPolicy
+# apiVersion: networking.k8s.io/v1
+# metadata:
+#   name: apple-lb-to-frontend-allow
+#   namespace: fruits-library
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app: fruitslib-afrnt
+#       role: frontend
+#       tenant: apple
+#   policyTypes:
+#   - Ingress
+#   ingress:
+#   - from:
+#     - ipBlock:
+#         cidr: 192.168.2.10/32
+#     ports:
+#     - protocol: TCP
+#       port: frnt-web-port # i.e. 8080
+# ---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: apple-lb-to-frontend-allow
+  namespace: fruits-library
+spec:
+  podSelector:
+    matchLabels:
+      app: fruitslib-afrnt
+      role: frontend
+      tenant: apple
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          app.kubernetes.io/name: ingress-nginx
+          app.kubernetes.io/part-of: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: frnt-web-port # i.e. 8080
+---
+# allow Frontend to respective ES
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: apple-frontend-to-es-allow
+  namespace: fruits-library
+spec:
+  podSelector:
+    matchLabels:
+      elasticsearch.k8s.elastic.co/cluster-name: es-apple-library
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: fruitslib-afrnt
+          role: frontend
+          tenant: apple
+    ports:
+    - protocol: TCP
+      port: 9200
+---
+###################
+#  TENANT BANANA  #
+###################
+# allow NGINX LB Ingress to Frontend
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: banana-lb-to-frontend-allow
+  namespace: fruits-library
+spec:
+  podSelector:
+    matchLabels:
+      app: fruitslib-bfrnt
+      role: frontend
+      tenant: banana
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 192.168.2.10/32
+    ports:
+    - protocol: TCP
+      port: frnt-web-port # i.e. 8080
+---
+# allow Frontend to respective ES
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: banana-frontend-to-es-allow
+  namespace: fruits-library
+spec:
+  podSelector:
+    matchLabels:
+      elasticsearch.k8s.elastic.co/cluster-name: es-banana-library
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: fruitslib-bfrnt
+          role: frontend
+          tenant: banana
+    ports:
+    - protocol: TCP
+      port: 9200
+---
+# allow Frontend to other ES
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: banana-frontend-to-other-es-allow
+  namespace: fruits-library
+spec:
+  podSelector:
+    matchLabels:
+      elasticsearch.k8s.elastic.co/cluster-name: es-apple-library
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: fruitslib-bfrnt
+          role: frontend
+          tenant: banana
+    ports:
+    - protocol: TCP
+      port: 9200
+---

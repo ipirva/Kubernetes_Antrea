@@ -1,0 +1,71 @@
+# Fruits Library - Banana - Elasticsearch
+# PersistentVolume 
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-fruitslib-bes
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: ${FS_ID}
+---
+# Elasticsearch kubernetes operator
+# https://www.elastic.co/guide/en/cloud-on-k8s/master/k8s-quickstart.html
+# kubectl --kubeconfig=${KUBECONFIG} apply -f https://download.elastic.co/downloads/eck/1.0.1/all-in-one.yaml
+apiVersion: elasticsearch.k8s.elastic.co/v1beta1
+kind: Elasticsearch
+metadata:
+  name: es-banana-library
+  namespace: fruits-library
+  labels:
+    tenant: banana
+spec:
+  version: 7.6.0
+  nodeSets:
+  # 1 node
+  - name: default
+    count: 1
+    config:
+      node.master: true
+      node.data: true
+      node.ingest: true
+      node.ml: true
+      node.store.allow_mmap: false
+      node.name: banana-1
+    podTemplate:
+      metadata:
+        labels:
+          cluster: es-banana-library
+          role: es-node
+          tenant: banana
+      spec:
+        initContainers:
+          - name: fix-permissions
+            image: busybox
+            command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+            securityContext:
+              privileged: true
+        containers:
+        - name: elasticsearch
+          volumeMounts:
+          - mountPath: /usr/share/elasticsearch/data
+            subPath: es-banana-library
+            name: elasticsearch-data
+    # PersistenVolume Claim        
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteMany
+        resources:
+          requests:
+            storage: 2Gi
+        storageClassName: efs-sc
+---

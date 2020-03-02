@@ -1,0 +1,40 @@
+{
+    "namespace": "fruits-library",
+    "dns": {
+        "timeout":3
+    },
+    "deployments":[
+        {
+            "name": "apple",
+            "svc_frontend_port": "8080",
+            "svc_frontend_proto": "tcp",
+            "svc_frontend_name": "fruitslib-afrnt",
+            "frontend_timeout": 3,
+            "svc_es_port": "9200",
+            "svc_es_proto": "tcp",
+            "svc_es_https": "https://",
+            "svc_es_name": "es-apple-library-es-http",
+            "es_timeout": 3,
+            "es_username": "elastic",
+            "es_password": "jbhmjnh6sjmfj2jf28qqzmsh",
+            "es_index": "apple/library",
+            "image": "assets/img/apple-smile.png"
+        },
+        {
+            "name": "banana",
+            "svc_frontend_port": "8080",
+            "svc_frontend_proto": "tcp",
+            "svc_frontend_name": "fruitslib-bfrnt",
+            "frontend_timeout": 3,
+            "svc_es_port": "9200",
+            "svc_es_proto": "tcp",
+            "svc_es_https": "https://",
+            "svc_es_name": "es-banana-library-es-http",
+            "es_timeout": 3,
+            "es_username": "elastic",
+            "es_password": "d2vmgjt7mfttdnwmgf6f8dsp",
+            "es_index": "banana/library",
+            "image": "assets/img/banana-smile.png"
+        }
+    ]
+}

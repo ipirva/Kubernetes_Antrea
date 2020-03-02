@@ -1,0 +1,25 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: apple-service
+  namespace: fruits
+spec:
+  selector:
+    app: apple
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: banana-service
+  namespace: fruits
+spec:
+  selector:
+    app: banana
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP

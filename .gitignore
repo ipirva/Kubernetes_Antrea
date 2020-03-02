@@ -1,0 +1,6 @@
+**/.DS_Store
+**/_generated_deployment*
+**/_generated_deployment
+.git
+**/mycluster.kubeconfig
+**/clusterapi.kubeconfig

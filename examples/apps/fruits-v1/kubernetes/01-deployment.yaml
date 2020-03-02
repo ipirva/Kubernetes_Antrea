@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apple-app
+  namespace: fruits
+spec:
+  selector:
+    matchLabels:
+      app: apple
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: apple
+    spec:
+      containers:
+      - image: ipirva/npm-node
+        imagePullPolicy: Always
+        name: apple
+        ports:
+          - containerPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banana-app
+  namespace: fruits
+spec:
+  selector:
+    matchLabels:
+      app: banana
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: banana
+    spec:
+      containers:
+      - image: ipirva/npm-node
+        imagePullPolicy: Always
+        name: banana
+        ports:
+          - containerPort: 3000

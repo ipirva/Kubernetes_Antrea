@@ -1,0 +1,35 @@
+--- antrea-octant.yml	2020-03-02 13:50:31.000000000 +0100
++++ antrea-octant_ingress.yml	2020-03-02 14:38:47.000000000 +0100
+@@ -12,7 +12,31 @@
+   selector:
+     app: antrea
+     component: antrea-octant
+-  type: NodePort
++---
++# Ingress
++apiVersion: extensions/v1beta1
++kind: Ingress
++metadata:
++  name: antrea-octant-ingress
++  namespace: kube-system
++  annotations:
++    nginx.ingress.kubernetes.io/ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
++    nginx.ingress.kubernetes.io/rewrite-target: /$1
++    nginx.ingress.kubernetes.io/proxy-pass-headers: "x-deployment-name"
++    nginx.ingress.kubernetes.io/configuration-snippet: |
++      more_set_headers "X-Deployment-Name: octant";
++    nginx.ingress.kubernetes.io/main-snippet: |
++      proxy_set_header X-Original-URI $request_uri;
++spec:
++  rules:
++  - host: mydashboard.com
++    http:
++      paths:
++        - path: /(.*)
++          backend:
++            serviceName: antrea-octant
++            servicePort: 80
+ ---
+ apiVersion: apps/v1
+ kind: Deployment

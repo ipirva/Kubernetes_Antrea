@@ -1,0 +1,29 @@
+# https://github.com/kubernetes-sigs/cluster-api-provider-aws/tree/master/examples
+# Kubernetes Cluster Objects
+---
+apiVersion: cluster.x-k8s.io/v1alpha2
+kind: Cluster
+metadata:
+  name: ${CLUSTER_NAME}
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks: 
+      - ${CLUSTER_CIDR_BLOCK}
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+    kind: AWSCluster
+    name: ${CLUSTER_NAME}
+    namespace: default
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha2
+kind: AWSCluster
+metadata:
+  name: ${CLUSTER_NAME}
+  namespace: default
+spec:
+  # Change this value to the region you want to deploy the cluster in.
+  region: ${CLUSTER_AWS_REGION}
+  # Change this value to a valid SSH Key Pair present in your AWS Account.
+  sshKeyName: ${CLUSTER_SSH_KEY}
