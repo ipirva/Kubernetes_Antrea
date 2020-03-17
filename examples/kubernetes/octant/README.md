@@ -7,7 +7,9 @@ https://github.com/vmware-tanzu/octant
 ```bash
 # https://github.com/vmware-tanzu/octant
 
-kubectl --kubeconfig=${KUBECONFIG} create secret generic octant-kubeconfig --from-file=${KUBECONFIG} -n kube-system
+# Get /etc/kubernetes/admin.conf from the K8s controller node
+kubectl --kubeconfig=${KUBECONFIG} create secret generic octant-kubeconfig --from-file=admin.conf -n kube-system
+
 cd ${DIR}/${GIT_REP}/examples/kubernetes/octant
 # use the default / latest antrea-octant installation
 wget -c https://github.com/vmware-tanzu/antrea/releases/download/$ANTREA_VER/antrea-octant.yml

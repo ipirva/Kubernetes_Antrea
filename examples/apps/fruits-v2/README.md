@@ -33,7 +33,12 @@ The app was built to run on top of a Kubernetes cluster on AWS with Ingress Cont
 
 1. Deploy the Kubernetes CNI plugin. Refer to the Kubernetes cluster deployment;
 2. Deploy the NGINX Ingress Controller. Refer to the respective folder;
-3. Export env variable FS_ID with the name of the AWS EFS filesystem id (e.g. fs-cf74eb1f).
+3. Export env variable FS_ID with the name of the AWS EFS filesystem id (e.g. fs-cf74eb1f);
+4. Install Elastic Cloud on Kubernetes (ECK) custom resource definitions and the operator with its RBAC rules: https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-quickstart.html
+
+```bash
+kubectl --kubeconfig=${KUBECONFIG} apply -f https://download.elastic.co/downloads/eck/1.0.1/all-in-one.yaml
+```
 
 ### Deploy the app
 
@@ -53,6 +58,9 @@ cd $SOURCE_DIR/examples/apps/fruits-v2
 /bin/bash generate-certificate.sh
 # Generate Kubernetes deployment manifests
 /bin/bash generate-kube.sh
+
+kubectl --kubeconfig=${KUBECONFIG} apply -f kubernetes/00-namespace.yaml
+kubectl --kubeconfig=${KUBECONFIG} apply -f kubernetes/01-storageclass.yaml
 
 # Deploy the frontends
 kubectl --kubeconfig=${KUBECONFIG} apply -f kubernetes/_generated_deployment_fe/frontend.yaml
