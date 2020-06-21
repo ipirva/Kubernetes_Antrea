@@ -1,6 +1,7 @@
 # Kubernetes cluster w/ Antrea CNI
 
 Kubernetes cluster bootstrap on different providers (e.g. AWS) and different app examples.
+VMware [Project Antrea](https://antrea.io/ "Antrea") is being used for connectivity and NetworkPolicy.
 
 ## Useful links
 

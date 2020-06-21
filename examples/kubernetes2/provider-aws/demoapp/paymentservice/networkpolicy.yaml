@@ -1,0 +1,60 @@
+---
+# default deny all ingress
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+# allow Egress to any
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: traffic-to-any
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - {}
+---
+## paymentservice
+# allow only checkoutservice to connect to paymentservice
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: traffic-to-paymentservice-from-checkoutservice
+spec:
+  podSelector:
+    matchLabels:
+      app: paymentservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    ports:
+    - protocol: TCP
+      port: 50051
+# ---
+# # allow Ingress from any
+# kind: NetworkPolicy
+# apiVersion: networking.k8s.io/v1
+# metadata:
+#   name: traffic-from-any
+# spec:
+#   podSelector: {}
+#   policyTypes:
+#   - Ingress
+#   ingress:
+#   - {}

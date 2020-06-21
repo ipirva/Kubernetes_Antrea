@@ -1,0 +1,134 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+  - ../../base/
+namespace: ${CLUSTER_NAME}
+resources:
+  - mycluster-namespace.yaml
+patches:
+- target:
+    kind: Namespace
+    name: .*
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: ${CLUSTER_NAME}
+- target:
+    kind: Cluster
+    name: .*
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: ${CLUSTER_NAME}
+    - op: replace
+      path: /spec/clusterNetwork/pods/cidrBlocks
+      value: ["${POD_CIDR}"]
+    - op: add
+      path: /spec/clusterNetwork/services
+      value:
+        cidrBlocks: ["${SERVICE_CIDR}"]
+    - op: replace
+      path: /spec/controlPlaneRef/name
+      value: ${CLUSTER_NAME}-control-plane
+    - op: replace
+      path: /spec/infrastructureRef/name
+      value: ${CLUSTER_NAME}
+- target:
+    kind: AWSCluster
+    name: .*
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: ${CLUSTER_NAME}
+    - op: replace
+      path: /spec/sshKeyName
+      value: ${AWS_SSH_KEY_NAME}
+    - op: replace
+      path: /spec/region
+      value: ${AWS_REGION}
+    - op: add
+      path: /spec/bastion
+      value: 
+        enabled: true
+- target:
+    kind: KubeadmControlPlane
+    name: base-control-plane
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: ${CLUSTER_NAME}-control-plane
+    - op: replace
+      path: /spec/infrastructureTemplate/name
+      value: ${CLUSTER_NAME}-control-plane
+    - op: replace
+      path: /spec/version
+      value: ${KUBERNETES_VERSION}
+    - op: replace
+      path: /spec/replicas
+      value: ${CONTROL_PLANE_MACHINE_COUNT}
+- target:
+    kind: AWSMachineTemplate
+    name: .*
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: ${CLUSTER_NAME}-control-plane
+    - op: replace
+      path: /spec/template/spec/instanceType
+      value: ${AWS_CONTROL_PLANE_MACHINE_TYPE}
+    - op: replace
+      path: /spec/template/spec/sshKeyName
+      value: ${AWS_SSH_KEY_NAME}
+    - op: add
+      path: /spec/template/spec/additionalSecurityGroups
+      value: ["id": "${AWS_CUSTOM_SG}"]
+    - op: add
+      path: /spec/template/spec/ami
+      value: 
+        id: ${AWS_AMI}
+- target:
+    kind: MachineDeployment
+    name: base-md-0
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: ${CLUSTER_NAME}-md-0
+    - op: replace
+      path: /spec/clusterName
+      value: ${CLUSTER_NAME}
+    - op: replace
+      path: /spec/replicas
+      value: ${WORKER_MACHINE_COUNT}
+    - op: replace
+      path: /spec/template/spec/bootstrap/configRef/name
+      value: ${CLUSTER_NAME}-md-0
+    - op: replace
+      path: /spec/template/spec/clusterName
+      value: ${CLUSTER_NAME}
+    - op: replace
+      path: /spec/template/spec/infrastructureRef/name
+      value: ${CLUSTER_NAME}-md-0
+    - op: replace
+      path: /spec/template/spec/version
+      value: ${KUBERNETES_VERSION}
+- target:
+    kind: AWSMachineTemplate
+    name: base-md-0
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: ${CLUSTER_NAME}-md-0
+    - op: replace
+      path: /spec/template/spec/instanceType
+      value: ${AWS_NODE_MACHINE_TYPE}
+    - op: replace
+      path: /spec/template/spec/sshKeyName
+      value: ${AWS_SSH_KEY_NAME}
+- target:
+    kind: KubeadmConfigTemplate
+    name: base-md-0
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: ${CLUSTER_NAME}-md-0

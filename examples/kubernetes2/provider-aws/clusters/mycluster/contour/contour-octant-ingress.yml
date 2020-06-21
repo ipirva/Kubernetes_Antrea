@@ -1,0 +1,20 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: antrea-octant-ingress
+  namespace: kube-system
+spec:
+  virtualhost:
+    fqdn: myoctant.com
+  routes:
+    - conditions:
+      - prefix: /
+      services:
+        - name: antrea-octant
+          port: 80
+    - conditions:
+      - prefix: /api/
+      enableWebsockets: true
+      services:
+        - name: antrea-octant
+          port: 80

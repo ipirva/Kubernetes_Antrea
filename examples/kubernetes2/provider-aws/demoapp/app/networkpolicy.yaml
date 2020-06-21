@@ -1,0 +1,368 @@
+---
+# default deny all traffic
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+# allow Egress to any
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: traffic-to-any
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - {}
+---
+## emailservice
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: emailservice-from-checkoutservice
+spec:
+  podSelector:
+    matchLabels:
+      app: emailservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - {}
+---
+## shippingservice
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: shippingservice-from-checkoutservice
+spec:
+  podSelector:
+    matchLabels:
+      app: shippingservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    ports:
+    - protocol: TCP
+      port: 50051
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: shippingservice-from-frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: shippingservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 50051
+---
+## adservice
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: adservice-from-frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: adservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 9555
+---
+## currencyservice
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: currencyservice-from-frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: currencyservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 7000
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: currencyservice-from-checkoutservice
+spec:
+  podSelector:
+    matchLabels:
+      app: currencyservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    ports:
+    - protocol: TCP
+      port: 7000
+---
+## productcatalogservice
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: productcatalogservice-from-checkoutservice
+spec:
+  podSelector:
+    matchLabels:
+      app: productcatalogservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    ports:
+    - protocol: TCP
+      port: 3550
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: productcatalogservice-from-frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: productcatalogservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 3550
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: productcatalogservice-from-recommendationservice
+spec:
+  podSelector:
+    matchLabels:
+      app: productcatalogservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: recommendationservice
+    ports:
+    - protocol: TCP
+      port: 3550
+---
+## recomendationservice
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: recommendationservice-from-frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: recommendationservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 8080
+---
+## cartservice
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: cartservice-from-frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: cartservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 7070
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: cartservice-from-checkoutservice
+spec:
+  podSelector:
+    matchLabels:
+      app: cartservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    ports:
+    - protocol: TCP
+      port: 7070
+---
+## checkoutservice
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: checkoutservice-from-frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: checkoutservice
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          project: hipstershop
+          scope: app
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 5050
+---
+## frontend
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: frontend-from-any
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    ports:
+    - port: 80
+      protocol: TCP
+    - port: 8080
+      protocol: TCP
+# ---
+# kind: NetworkPolicy
+# apiVersion: networking.k8s.io/v1
+# metadata:
+#   name: from-test
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app: test
+#   policyTypes:
+#   - Ingress
+#   ingress:
+#   - {}
+# ---
+# allow Egress to any
+# kind: NetworkPolicy
+# apiVersion: networking.k8s.io/v1
+# metadata:
+#   name: traffic-to-any
+# spec:
+#   podSelector: {}
+#   policyTypes:
+#   - Egress
+#   egress:
+#   - {}
+# ---
+# kind: NetworkPolicy
+# apiVersion: networking.k8s.io/v1
+# metadata:
+#   name: traffic-from-any
+# spec:
+#   podSelector: {}
+#   policyTypes:
+#   - Ingress
+#   ingress:
+#     - {}
+

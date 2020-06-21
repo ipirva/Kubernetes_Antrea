@@ -1,0 +1,134 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+  - ../../base/
+namespace: mycluster01
+resources:
+  - mycluster-namespace.yaml
+patches:
+- target:
+    kind: Namespace
+    name: .*
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: mycluster01
+- target:
+    kind: Cluster
+    name: .*
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: mycluster01
+    - op: replace
+      path: /spec/clusterNetwork/pods/cidrBlocks
+      value: ["10.10.0.0/16"]
+    - op: add
+      path: /spec/clusterNetwork/services
+      value:
+        cidrBlocks: ["10.20.0.0/16"]
+    - op: replace
+      path: /spec/controlPlaneRef/name
+      value: mycluster01-control-plane
+    - op: replace
+      path: /spec/infrastructureRef/name
+      value: mycluster01
+- target:
+    kind: AWSCluster
+    name: .*
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: mycluster01
+    - op: replace
+      path: /spec/sshKeyName
+      value: mycluster-ssh
+    - op: replace
+      path: /spec/region
+      value: eu-west-3
+    - op: add
+      path: /spec/bastion
+      value: 
+        enabled: true
+- target:
+    kind: KubeadmControlPlane
+    name: base-control-plane
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: mycluster01-control-plane
+    - op: replace
+      path: /spec/infrastructureTemplate/name
+      value: mycluster01-control-plane
+    - op: replace
+      path: /spec/version
+      value: v1.18.2
+    - op: replace
+      path: /spec/replicas
+      value: 1
+- target:
+    kind: AWSMachineTemplate
+    name: .*
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: mycluster01-control-plane
+    - op: replace
+      path: /spec/template/spec/instanceType
+      value: t3.medium
+    - op: replace
+      path: /spec/template/spec/sshKeyName
+      value: mycluster-ssh
+    - op: add
+      path: /spec/template/spec/additionalSecurityGroups
+      value: ["id": "mycluster01-custom"]
+    - op: add
+      path: /spec/template/spec/ami
+      value: 
+        id: ami-0f51cd5679fb64b50
+- target:
+    kind: MachineDeployment
+    name: base-md-0
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: mycluster01-md-0
+    - op: replace
+      path: /spec/clusterName
+      value: mycluster01
+    - op: replace
+      path: /spec/replicas
+      value: 3
+    - op: replace
+      path: /spec/template/spec/bootstrap/configRef/name
+      value: mycluster01-md-0
+    - op: replace
+      path: /spec/template/spec/clusterName
+      value: mycluster01
+    - op: replace
+      path: /spec/template/spec/infrastructureRef/name
+      value: mycluster01-md-0
+    - op: replace
+      path: /spec/template/spec/version
+      value: v1.18.2
+- target:
+    kind: AWSMachineTemplate
+    name: base-md-0
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: mycluster01-md-0
+    - op: replace
+      path: /spec/template/spec/instanceType
+      value: t3.medium
+    - op: replace
+      path: /spec/template/spec/sshKeyName
+      value: mycluster-ssh
+- target:
+    kind: KubeadmConfigTemplate
+    name: base-md-0
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: mycluster01-md-0

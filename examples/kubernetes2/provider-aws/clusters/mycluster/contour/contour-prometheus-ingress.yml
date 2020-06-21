@@ -1,0 +1,14 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: antrea-prometheus-ingress
+  namespace: monitoring
+spec:
+  virtualhost:
+    fqdn: myprometheus.com
+  routes:
+    - conditions:
+      - prefix: /
+      services:
+        - name: prometheus-service
+          port: 8080

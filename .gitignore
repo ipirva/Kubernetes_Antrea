@@ -4,3 +4,8 @@
 .git
 **/mycluster.kubeconfig
 **/clusterapi.kubeconfig
+**/keys
+**/.kubeconfig
+**/kubeconfigs
+**/admin.conf
+**/mycluster/deployment/contour/*
