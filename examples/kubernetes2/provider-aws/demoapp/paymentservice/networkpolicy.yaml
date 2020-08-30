@@ -40,7 +40,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: checkoutservice
     ports:
