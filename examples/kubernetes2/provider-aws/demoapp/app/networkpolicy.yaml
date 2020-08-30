@@ -53,7 +53,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: checkoutservice
     ports:
@@ -76,7 +76,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: frontend
     ports:
@@ -100,7 +100,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: frontend
     ports:
@@ -163,7 +163,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: checkoutservice
     ports:
@@ -186,7 +186,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: frontend
     ports:
@@ -209,7 +209,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: recommendationservice
     ports:
@@ -233,7 +233,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: frontend
     ports:
@@ -257,7 +257,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: frontend
     ports:
@@ -280,7 +280,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: checkoutservice
     ports:
@@ -304,7 +304,7 @@ spec:
         matchLabels:
           project: hipstershop
           scope: app
-    - podSelector:
+      podSelector:
         matchLabels:
           app: frontend
     ports:
